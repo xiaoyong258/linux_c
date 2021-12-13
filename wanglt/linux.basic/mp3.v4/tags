@@ -1,0 +1,29 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BIN	app/Makefile	/^BIN = mp3$/;"	m
+BIN	common.mk	/^BIN  := $(addprefix $(OBJ_DIR)\/,$(BIN))$/;"	m
+BIN	lcd/Makefile	/^BIN =$/;"	m
+BIN	media/Makefile	/^BIN =$/;"	m
+BIN	usb/Makefile	/^BIN =$/;"	m
+CC	common.mk	/^CC = gcc -g$/;"	m
+CC	common.mk	/^CC = gcc$/;"	m
+DEPS	common.mk	/^DEPS := $(addprefix $(DEP_DIR)\/,$(DEPS))$/;"	m
+DEPS	common.mk	/^DEPS = $(SRCS:.c=.d)$/;"	m
+DEP_DIR	common.mk	/^DEP_DIR = ~\/project\/c\/mp3.v4\/dep$/;"	m
+LINK_OBJ	common.mk	/^LINK_OBJ = $(wildcard $(OBJ_DIR)\/*.o)$/;"	m
+OBJS	common.mk	/^OBJS := $(addprefix $(OBJ_DIR)\/,$(OBJS))$/;"	m
+OBJS	common.mk	/^OBJS = $(SRCS:.c=.o) $/;"	m
+OBJ_DIR	common.mk	/^OBJ_DIR = ~\/project\/c\/mp3.v4\/build$/;"	m
+SRCS	common.mk	/^SRCS = $(wildcard *.c)$/;"	m
+VERSION	inc/usb.h	5;"	d
+__LCD_H	inc/lcd.h	2;"	d
+__MEDIA_H	inc/media.h	2;"	d
+__USB_H	inc/usb.h	2;"	d
+lcd_init	lcd/lcd.c	/^void lcd_init()$/;"	f
+main	app/player.c	/^int main()$/;"	f
+media_init	media/media.c	/^void media_init()$/;"	f
+usb_init	usb/usb.c	/^void usb_init()$/;"	f
