@@ -11,7 +11,15 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <pwd.h>
 
+int builtin_cmd_cd(char path[]);
+int is_builtin_cmd(char *arglist[]);
+
+void print_color_yellow(void);
+void print_color_blue(void);
+void print_color_reset(void);
+void print_cmd_prompt(void);
 int read_cmdline(char buffer[]);
 int parse_cmdline(char bufer[], char *arglist[]);
 int exec_cmdline(char *arglist[]);
@@ -25,6 +33,7 @@ int main(void)
 
 	while(1)
 	{
+		print_cmd_prompt();
 		read_cmdline(buffer);
 		args_num = parse_cmdline(buffer, arglist);
 		exec_cmdline(arglist);
@@ -37,6 +46,31 @@ int main(void)
 	exit(0);
 }
 
+void print_color_yellow(void)
+{
+	printf("\033[33;1m");
+}
+void print_color_blue(void)
+{
+	printf("\033[34;1m");
+}
+void print_color_reset(void)
+{
+	printf("\033[0m");
+}
+void print_cmd_prompt(void)
+{
+	struct passwd *pwd;
+	pwd = getpwuid(getuid());
+	char path[256];
+	getcwd(path,sizeof(path));
+	print_color_yellow();
+	printf("%s@ubuntu:",pwd->pw_name);
+	print_color_blue();
+	printf("%s",path);
+	print_color_reset();
+	printf(">>> ");
+}
 int read_cmdline(char buffer[])
 {
 	char c;
@@ -117,6 +151,15 @@ int exec_cmdline(char *arglist[])
 	int ret_from_fork;
 	int child_ret_status;
 	
+	if(arglist[0] == 0)
+		return 0;
+
+	if(is_builtin_cmd(arglist))
+	{
+		builtin_cmd_cd(arglist[1]);
+		return 0;
+	}
+
 	ret_from_fork = fork();
 	if(ret_from_fork == 0)
 	{
