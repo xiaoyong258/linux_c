@@ -12,14 +12,36 @@
 #include <sys/wait.h>
 #include <string.h>
 
+int read_cmdline(char buffer[]);
+int parse_cmdline(char bufer[], char *arglist[]);
+int exec_cmdline(char *arglist[]);
+int free_cmdline(char *arglist[], int args_num);
+
 int main(void)
 {
-	int ret_from_fork;
-	int child_ret_status;
 	char buffer[512] = {0};
+	char *arglist[20] = {0};
+	int  args_num = 0;
+
+	while(1)
+	{
+		read_cmdline(buffer);
+		args_num = parse_cmdline(buffer, arglist);
+		exec_cmdline(arglist);
+		free_cmdline(arglist, args_num);
+		memset(buffer,'\0',512);
+		memset(arglist,0,80);
+	}
+
+	printf("main shell exit\n");
+	exit(0);
+}
+
+int read_cmdline(char buffer[])
+{
 	char c;
 	int  pos = 0;
-
+	
 	// get input parameter.
 	while(1)
 	{
@@ -32,7 +54,7 @@ int main(void)
 			break;
 		}
 	}
-
+	return pos;
 
 	/* check input parameter.
 	printf("%s\n", buffer);
@@ -44,18 +66,24 @@ int main(void)
 		"-a"
 	};
 	*/
-	
+}
+
+int parse_cmdline(char buffer[], char *arglist[])
+{
 	// Analysis input parameter.
-	char *arglist[20] = {0};
 	char *cp = buffer;
 	int  args_num = 0;
 	int  len;
 	char *start;
+	char c;
 
 	while( *cp != '\0')
 	{
 		while(*cp == ' ' || *cp == '\t' )
 			cp++;
+		
+		if(*cp == 0)
+			break;
 
 		start = cp;
 		len = 1;
@@ -70,6 +98,7 @@ int main(void)
 		arglist[args_num][len] = '\0';
 		args_num++;
 	}
+	return args_num;
 
 	/* Check analysised parameter.
 	int i = 0;
@@ -81,7 +110,13 @@ int main(void)
 	}
 	exit(0);
 	*/
+}
 
+int exec_cmdline(char *arglist[])
+{
+	int ret_from_fork;
+	int child_ret_status;
+	
 	ret_from_fork = fork();
 	if(ret_from_fork == 0)
 	{
@@ -99,13 +134,14 @@ int main(void)
 		perror("fork");
 		exit(EXIT_FAILURE);
 	}
-	printf("main shell exit\n");
-
-	int i = 0;
-	while(arglist[i])
-		free(arglist[i++]);
-
-
-
-	exit(0);
+	return 0;
 }
+
+int free_cmdline(char *arglist[], int args_num)
+{
+	int i = 0;
+	for(i=0; i< args_num; i++)	
+		free(arglist[i]);
+	return 0;
+}
+
