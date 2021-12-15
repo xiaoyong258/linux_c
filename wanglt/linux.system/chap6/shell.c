@@ -1,5 +1,5 @@
 /*
- *      Filename: shell1.c
+ *      Filename: shell1.c aaa
  *        Author: xiaoyong
  *   Description:
  * 		  Create: 2021-12-14 06:01
@@ -13,6 +13,13 @@
 #include <string.h>
 #include <pwd.h>
 #include <signal.h>
+
+int background_exec = 0;
+/* 
+ * 1 = background mode
+ * 0 = normal mode
+ * */
+
 
 int exec_builtin_cmd(char *arglist[]);
 int is_builtin_cmd(char *arglist[]);
@@ -111,7 +118,19 @@ int parse_cmdline(char buffer[], char *arglist[])
 	int  len;
 	char *start;
 	char c;
-
+	//check parameter if include & background symbol.
+	while(*cp != '\0' && *cp != '\n')
+	{
+		if(*cp == '&')
+		{
+			background_exec = 1;
+			*cp = ' ';
+			break;
+		}
+		cp++;
+	}
+	
+	cp = buffer;
 	while( *cp != '\0')
 	{
 		while(*cp == ' ' || *cp == '\t' )
@@ -165,6 +184,7 @@ int exec_cmdline(char *arglist[])
 	if(ret_from_fork == 0)
 	{
 		signal(SIGINT,SIG_DFL);
+		signal(SIGQUIT,SIG_DFL);
 		execvp(arglist[0],arglist);
 		perror("execvp");
 		exit(EXIT_FAILURE);
@@ -172,8 +192,17 @@ int exec_cmdline(char *arglist[])
 	else if(ret_from_fork > 0)
 	{
 		signal(SIGINT,SIG_IGN);
-		if(wait(&child_ret_status) == 0)
-			perror("wait");
+		signal(SIGQUIT,SIG_IGN);
+		if(background_exec == 1)
+		{
+			background_exec = 0;
+			signal(SIGCHLD, SIG_IGN);
+		}
+		else{
+			signal(SIGCHLD,SIG_DFL);
+			if(wait(&child_ret_status) == -1)
+				perror("wait");
+		}
 	}
 	else
 	{
