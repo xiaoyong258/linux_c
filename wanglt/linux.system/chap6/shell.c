@@ -12,8 +12,9 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <pwd.h>
+#include <signal.h>
 
-int builtin_cmd_cd(char path[]);
+int exec_builtin_cmd(char *arglist[]);
 int is_builtin_cmd(char *arglist[]);
 
 void print_color_yellow(void);
@@ -156,19 +157,21 @@ int exec_cmdline(char *arglist[])
 
 	if(is_builtin_cmd(arglist))
 	{
-		builtin_cmd_cd(arglist[1]);
+		exec_builtin_cmd(arglist);
 		return 0;
 	}
 
 	ret_from_fork = fork();
 	if(ret_from_fork == 0)
 	{
+		signal(SIGINT,SIG_DFL);
 		execvp(arglist[0],arglist);
 		perror("execvp");
 		exit(EXIT_FAILURE);
 	}
 	else if(ret_from_fork > 0)
 	{
+		signal(SIGINT,SIG_IGN);
 		if(wait(&child_ret_status) == 0)
 			perror("wait");
 	}
